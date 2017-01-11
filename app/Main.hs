@@ -1,18 +1,39 @@
+{-# LANGUAGE Arrows, CPP #-}
 module Main where
 
+import Options.Applicative
+import Options.Applicative.Arrows
 import Text.Phidoc
 
-toIO :: Show a => Either a b -> IO b
-toIO (Left e) = fail (show e)
-toIO (Right r) = return r
+data Opts = Opts
+  { file    :: String }
+  deriving (Show)
 
-relinkIO :: [String] -> String -> IO String
-relinkIO path content = toIO (relink path content)
+version :: Parser (a -> a)
+version = infoOption "0.1.0"
+  ( long "version"
+    <> help "Print version information" )
 
-someFunc :: IO ()
-someFunc = do
-  out <- relinkIO [] "Hello from someFun"
-  putStrLn out
+type Args = Opts
+argsP :: Parser Args
+argsP = runA $ proc () -> do
+  opts <- asA optsP -< ()
+  A version >>> A helper -< opts
+
+optsP :: Parser Opts
+optsP = Opts
+  <$> argument str
+    (  metavar "FILE"
+    <> help "Input file" )
+
+pinfo :: ParserInfo Args
+pinfo = info argsP
+  (  fullDesc
+  <> progDesc "Create combined pandocs"
+  <> header "this is currently just a test" )
 
 main :: IO ()
-main = someFunc
+main = do
+  args   <- execParser pinfo
+  result <- walk (file args)
+  putStrLn result
