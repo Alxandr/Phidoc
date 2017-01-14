@@ -1,0 +1,55 @@
+version: "Build #{build}"
+
+# Short path == less issues
+clone_folder: "c:\\stack"
+
+init:
+  - git config --global core.autocrlf input
+
+# ENV vars
+environment:
+  global:
+    STACK_ROOT: "c:\\sr"
+
+cache:
+  - "c:\\sr" # stack root, short paths == fewer problems
+
+# We don't do a normal C build, but build in test_script via stack
+build: off
+
+install:
+  - curl -ostack.zip -L --insecure https://www.stackage.org/stack/windows-x86_64 && 7z x stack.zip stack.exe
+  - stack setup > nul
+  - appveyor-retry stack --no-terminal --install-ghc build --only-dependencies
+
+test_script:
+  # The ugly echo "" hack is to avoid complaints about 0 being an invalid file
+  # descriptor
+  - echo "" | stack --no-terminal build
+
+after_test:
+  - ps: $stackRoot = .\stack path --local-install-root
+  - ps: $phidoc = "$stackRoot\bin\phidoc.exe"
+  - ps: if (Test-Path -Path bin) { Remove-Item bin }
+  - ps: New-Item -ItemType directory -Path bin
+  - ps: Copy-Item $phidoc bin/
+  - cmd: md5sum bin/phidoc.exe | head -c 32 > bin/phidoc.exe.md5
+  - cmd: sha1sum bin/phidoc.exe | head -c 40 > bin/phidoc.exe.sha1
+  - cmd: sha256sum bin/phidoc.exe | head -c 64 > bin/phidoc.exe.sha256
+  - cmd: sha512sum bin/phidoc.exe | head -c 128 > bin/phidoc.exe.sha512
+
+artifacts:
+  - path: bin\phidoc.exe
+    name: exe
+
+  - path: bin\phidoc.exe.md5
+    name: md5
+
+  - path: bin\phidoc.exe.sha1
+    name: sha1
+
+  - path: bin\phidoc.exe.sha256
+    name: sha256
+
+  - path: bin\phidoc.exe.sha512
+    name: sha512

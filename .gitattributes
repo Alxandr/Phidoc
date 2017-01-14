@@ -1,0 +1,14 @@
+#common settings that generally should always be used with your language specific settings
+
+# Auto detect text files and perform LF normalization
+# http://davidlaing.com/2012/09/19/customise-your-gitattributes-to-become-a-git-ninja/
+* text=auto
+
+#
+# The above will handle all files NOT found below
+#
+
+*.md text
+
+# Appveyor file needs to be in CRLF mode
+appveyor.yml text eol=crlf
