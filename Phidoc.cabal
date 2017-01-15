@@ -8,7 +8,7 @@ license-file:        LICENSE
 author:              Alxandr
 maintainer:          alxandr@alxandr.me
 copyright:           2017 Alxandr
-category:            Web
+category:            Text
 build-type:          Simple
 extra-source-files:  README.md
 cabal-version:       >=1.10
