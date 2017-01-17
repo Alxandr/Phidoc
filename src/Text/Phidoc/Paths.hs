@@ -12,6 +12,7 @@ import Text.Pandoc (
   , def
   )
 
+import Control.Monad.Catch
 import Text.Pandoc.Error (PandocError)
 import Text.Pandoc.Walk (query)
 import Data.List (intercalate)
@@ -57,7 +58,8 @@ replacePaths content replacements = replaced where
   replaced' = foldl reducer content' replacements
   replaced = unpack replaced'
 
-relink :: CurrentPath -> String -> Either PandocError String
-relink current content = do
-  doc <- readMarkdown def content
-  return $ replacePaths content (extractDocUrls current doc)
+relink :: MonadCatch m => CurrentPath -> String -> m String
+relink current content = either throwM doReplace doc
+  where
+    doc = readMarkdown def content
+    doReplace doc = return $ replacePaths content (extractDocUrls current doc)

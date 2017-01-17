@@ -1,9 +1,11 @@
 {-# LANGUAGE Arrows, CPP #-}
 module Main where
 
+import System.FilePath
 import Options.Applicative
 import Options.Applicative.Arrows
 import Text.Phidoc
+import qualified Data.Text as T
 
 data Opts = Opts
   { file    :: String }
@@ -32,8 +34,17 @@ pinfo = info argsP
   <> progDesc "Create combined pandocs"
   <> header "this is currently just a test" )
 
+assertNewLineEnding :: String -> String
+assertNewLineEnding = T.unpack . flip T.snoc '\n' . flip T.snoc '\n' . T.stripEnd . T.pack
+
+relinkContent :: FileContent -> IO String
+relinkContent (FileContent path content) = do
+  relinked <- relink (takeDirectory path) content
+  return $ assertNewLineEnding relinked
+
 main :: IO ()
 main = do
   args   <- execParser pinfo
   result <- walk (file args)
-  putStrLn result
+  relinked <- mapM relinkContent result
+  putStrLn $ concat relinked
