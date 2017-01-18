@@ -8,7 +8,7 @@ import Control.Monad.Catch
 import System.FilePath
 import Text.Phidoc.FileSystem
 
-data ResolvedDoc = ResolvedDoc FilePath
+data ResolvedDoc = ResolvedDoc FilePath deriving Eq
 
 data ResolveException =
     PathDoesNotExist String
