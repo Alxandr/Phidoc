@@ -58,7 +58,7 @@ replacePaths content replacements = replaced where
   replaced' = foldl reducer content' replacements
   replaced = unpack replaced'
 
-relink :: MonadCatch m => CurrentPath -> String -> m String
+relink :: MonadThrow m => CurrentPath -> String -> m String
 relink current content = either throwM doReplace doc
   where
     doc = readMarkdown def content

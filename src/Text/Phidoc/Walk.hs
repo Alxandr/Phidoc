@@ -10,7 +10,7 @@ import Text.Phidoc.FileSystem
 import Text.Phidoc.Resolve
 import System.FilePath
 
-data FileContent = FileContent FilePath String
+data FileContent = FileContent FilePath String deriving (Eq, Show)
 
 data WalkException =
     ExtensionNotSupported String
