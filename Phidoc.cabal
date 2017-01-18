@@ -43,7 +43,7 @@ executable phidoc
 test-suite Phidoc-test
   type:                exitcode-stdio-1.0
   hs-source-dirs:      test
-  main-is:             Spec.hs
+  main-is:             Main.hs
   other-modules:       FakeFileSystem
   build-depends:       base
                      , Phidoc
@@ -52,6 +52,7 @@ test-suite Phidoc-test
                      , mtl
                      , exceptions
                      , HUnit
+                     , text
   ghc-options:         -threaded -rtsopts -with-rtsopts=-N
   default-language:    Haskell2010
 

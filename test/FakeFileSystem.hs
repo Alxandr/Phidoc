@@ -19,11 +19,29 @@ import Control.Monad.Catch
 import Test.HUnit.Base
 
 import qualified Data.HashMap as M
+import qualified Data.Text as T
 
 data FakeFileSystem = FakeFS FakeEntry
+instance Show FakeFileSystem where
+  show (FakeFS fs) = show fs
+
 data FakeEntry =
     FakeFile String
   | FakeDir (Map String FakeEntry)
+instance Show FakeEntry where
+  show (FakeFile content) = "<File>"
+  show (FakeDir entries) = T.unpack text
+    where
+      text = T.concat [T.pack "[", mapped, T.pack "]"]
+      mapped = foldWithKey buildStr T.empty entries
+      buildStr name entry = buildText (T.pack name) (T.pack $ show entry)
+      buildText name entry txt = T.concat [
+          txt
+        , T.pack "\n"
+        , name
+        , T.pack ": "
+        , T.replace (T.pack "\n") (T.pack "\n  ") entry
+        ]
 
 empty :: FakeFileSystem
 empty = FakeFS (FakeDir M.empty)
@@ -52,12 +70,12 @@ insertEntry (name:path) content (FakeDir m) = FakeDir $ alter (mergeDir path con
 addEntry :: FilePath -> String -> FakeFileSystem -> FakeFileSystem
 addEntry path content (FakeFS rootEntry) = newFS
   where
-    path'  = splitPath path
+    path'  = splitDirectories path
     merged = insertEntry path' content rootEntry
     newFS  = FakeFS merged
 
 lookupEntry :: FilePath -> FakeFileSystem -> Maybe FakeEntry
-lookupEntry path (FakeFS rootEntry) = lookup' (splitPath path) rootEntry
+lookupEntry path (FakeFS rootEntry) = lookup' (splitDirectories path) rootEntry
   where
     lookup' :: [FilePath] -> FakeEntry -> Maybe FakeEntry
     lookup' []           e           = Just e

@@ -1,3 +1,5 @@
+module Main where
+
 import FakeFileSystem
 import Control.Monad
 import Control.Monad.Catch
@@ -21,10 +23,16 @@ expect expected mactual = assertion
 tests :: Test
 tests = test [
     "resolve index to index.phi" ~: expect (R.ResolvedDoc "index.phi") $ R.resolve "index"
+  , "resolve ch 1 to index.md"   ~: expect (R.ResolvedDoc $ "ch 1" </> "index.md") $ R.resolve "ch 1"
+  , "resolve ch 2 to index.md"   ~: expect (R.ResolvedDoc $ "ch 2" </> "index.md") $ R.resolve "ch 2"
+  , "resolve ch 1/index to index.md" ~: expect (R.ResolvedDoc $ "ch 1" </> "index.md") $ R.resolve $ "ch 1" </> "index"
   ]
 
 runTests :: Test -> IO ()
-runTests = void . runTestTT
+runTests tests = do
+  -- print fs
+  runTestTT tests
+  return ()
 
 main :: IO ()
 main = runTests tests
