@@ -2,27 +2,16 @@ module Text.Phidoc.Paths
   ( relink
   ) where
 
-import Text.Pandoc (
-    Inline (
-        Link
-      , Image
-    )
-  , Pandoc
-  , readMarkdown
-  , def
-  )
+import           Text.Pandoc         (Inline (Image, Link), Pandoc, def,
+                                      readMarkdown)
 
-import Control.Monad.Catch
-import Text.Pandoc.Error (PandocError)
-import Text.Pandoc.Walk (query)
-import Data.List (intercalate)
-import Data.Maybe (catMaybes)
-import System.FilePath (
-    FilePath
-  , normalise
-  , (</>)
-  )
-import qualified Data.Text as T
+import           Control.Monad.Catch
+import           Data.List           (intercalate)
+import           Data.Maybe          (catMaybes)
+import qualified Data.Text           as T
+import           System.FilePath     (FilePath, normalise, (</>))
+import           Text.Pandoc.Error   (PandocError)
+import           Text.Pandoc.Walk    (query)
 
 type CurrentPath = FilePath
 type Replacement = (FilePath, FilePath)

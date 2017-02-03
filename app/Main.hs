@@ -1,11 +1,13 @@
-{-# LANGUAGE Arrows, CPP #-}
+{-# LANGUAGE Arrows #-}
+{-# LANGUAGE CPP    #-}
 module Main where
 
-import System.FilePath
-import Options.Applicative
-import Options.Applicative.Arrows
-import Text.Phidoc
-import qualified Data.Text as T
+import           Options.Applicative
+import           Options.Applicative.Arrows
+import           System.FilePath
+import           Text.Phidoc
+
+import qualified Data.Text                  as T
 
 data Opts = Opts
   { file    :: String }

@@ -4,8 +4,5 @@ module Text.Phidoc
   , FileContent (..)
   ) where
 
-import Text.Phidoc.Paths (relink)
-import Text.Phidoc.Walk (
-    walk
-  , FileContent (..)
-  )
+import           Text.Phidoc.Paths (relink)
+import           Text.Phidoc.Walk  (FileContent (..), walk)

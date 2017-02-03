@@ -1,18 +1,21 @@
 module Main where
 
-import Prelude hiding (readFile)
-import FakeFileSystem
-import Text.Phidoc.FileSystem (readFile)
-import Control.Monad
-import Control.Monad.Catch
-import Test.HUnit
+import           Control.Monad
+import           Control.Monad.Catch
+import           FakeFileSystem
+import           Prelude                hiding (readFile)
+import           Test.HUnit
+import           Text.Phidoc.FileSystem (readFile)
 
-import qualified Text.Phidoc.Resolve as R
-import qualified Text.Phidoc.Walk as W
-import qualified Text.Phidoc.Paths as P
+import qualified Text.Phidoc.Paths      as P
+import qualified Text.Phidoc.Resolve    as R
+import qualified Text.Phidoc.Walk       as W
 
 fs :: FakeFileSystem
-fs = "index.phi"            |= "./abstract\n\
+fs = "index.phi"            |= "# Abstract\n\
+                               \./abstract\n\
+                               \\n\
+                               \# Chapters\n\
                                \./ch 1\n\
                                \./ch 2\n\
                                \./ch 3\n"

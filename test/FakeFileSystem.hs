@@ -1,4 +1,7 @@
-{-# LANGUAGE FlexibleInstances, TypeFamilies, ConstraintKinds, TupleSections #-}
+{-# LANGUAGE ConstraintKinds   #-}
+{-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE TupleSections     #-}
+{-# LANGUAGE TypeFamilies      #-}
 module FakeFileSystem (
     FakeFileSystem
   , FakeIO (..)
@@ -8,18 +11,18 @@ module FakeFileSystem (
   , (|=)
   ) where
 
-import Prelude hiding (lookup)
-import Data.Typeable (Typeable)
-import Data.HashMap hiding (empty)
-import Data.Monoid
-import Data.Maybe
-import Text.Phidoc.FileSystem
-import System.FilePath
-import Control.Monad.Catch
-import Test.HUnit.Base
+import           Control.Monad.Catch
+import           Data.HashMap           hiding (empty)
+import           Data.Maybe
+import           Data.Monoid
+import           Data.Typeable          (Typeable)
+import           Prelude                hiding (lookup)
+import           System.FilePath
+import           Test.HUnit.Base
+import           Text.Phidoc.FileSystem
 
-import qualified Data.HashMap as M
-import qualified Data.Text as T
+import qualified Data.HashMap           as M
+import qualified Data.Text              as T
 
 data FakeFileSystem = FakeFS FakeEntry
 instance Show FakeFileSystem where
@@ -48,7 +51,7 @@ empty = FakeFS (FakeDir M.empty)
 
 infixr 1 /+
 (/+) :: (FilePath, String) -> FakeFileSystem -> FakeFileSystem
-(/+) (p, c) fs = addEntry p c fs
+(/+) (p, c) = addEntry p c
 
 infix 2 |=
 (|=) :: FilePath -> String -> (FilePath, String)

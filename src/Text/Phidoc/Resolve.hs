@@ -3,10 +3,10 @@ module Text.Phidoc.Resolve
   , ResolvedDoc (..)
   ) where
 
-import Data.Typeable (Typeable)
-import Control.Monad.Catch
-import System.FilePath
-import Text.Phidoc.FileSystem
+import           Control.Monad.Catch
+import           Data.Typeable          (Typeable)
+import           System.FilePath
+import           Text.Phidoc.FileSystem
 
 data ResolvedDoc = ResolvedDoc FilePath deriving Eq
 

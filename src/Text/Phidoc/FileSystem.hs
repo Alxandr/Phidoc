@@ -3,10 +3,10 @@ module Text.Phidoc.FileSystem
   , PathType (..)
   ) where
 
-import Control.Monad.Catch
-import System.FilePath
-import System.Directory
-import System.IO
+import           Control.Monad.Catch
+import           System.Directory
+import           System.FilePath
+import           System.IO
 
 data PathType = File | Directory | PathNotFound
   deriving Eq
