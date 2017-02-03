@@ -9,6 +9,8 @@ import           Text.Phidoc
 
 import qualified Data.Text                  as T
 
+data MarkdownContent = MarkdownContent FilePath String
+
 data Opts = Opts
   { file    :: String }
   deriving (Show)
@@ -39,8 +41,12 @@ pinfo = info argsP
 assertNewLineEnding :: String -> String
 assertNewLineEnding = T.unpack . flip T.snoc '\n' . flip T.snoc '\n' . T.stripEnd . T.pack
 
-relinkContent :: FileContent -> IO String
-relinkContent (FileContent path content) = do
+convert :: FileContent -> MarkdownContent
+convert (Content path content) = MarkdownContent path content
+convert (Meta path content)    = MarkdownContent path ("---\n" ++ assertNewLineEnding content ++ "---")
+
+relinkContent :: MarkdownContent -> IO String
+relinkContent (MarkdownContent path content) = do
   relinked <- relink (takeDirectory path) content
   return $ assertNewLineEnding relinked
 
@@ -48,5 +54,6 @@ main :: IO ()
 main = do
   args   <- execParser pinfo
   result <- walk (file args)
-  relinked <- mapM relinkContent result
+  let converted = fmap convert result
+  relinked <- mapM relinkContent converted
   putStrLn $ concat relinked

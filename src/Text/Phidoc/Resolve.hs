@@ -20,21 +20,21 @@ instance Exception ResolveException
 instance Show ResolvedDoc where
   show (ResolvedDoc path) = "ResolvedDoc(path=" ++ path ++ ")"
 
+resolveWithExts :: MonadFS m => [String] -> FilePath -> m ResolvedDoc
+resolveWithExts [] path = throwM $ PathDoesNotExist path
+resolveWithExts (ext:rest) path = do
+  let pathWithExt = path ++ ext
+  fileType <- stat pathWithExt
+  if fileType == File then return $ ResolvedDoc pathWithExt
+  else resolveWithExts rest path
+
 resolve' :: MonadFS m => Bool -> FilePath -> m ResolvedDoc
 resolve' allowDir path = do
   pathType <- stat path
   case (pathType, allowDir) of
     (File, _)         -> return $ ResolvedDoc path
     (Directory, True) -> resolve' False $ path </> "index"
-    _                 -> do
-      let mdPath = path ++ ".md"
-      mdType <- stat mdPath
-      if mdType == File then return $ ResolvedDoc mdPath
-      else do
-        let phiPath = path ++ ".phi"
-        phiType <- stat phiPath
-        if phiType == File then return $ ResolvedDoc phiPath
-        else throwM $ PathDoesNotExist path
+    _                 -> resolveWithExts [".phi", ".md", ".yml"] path
 
 resolve :: MonadFS m => FilePath -> m ResolvedDoc
 resolve = resolve' True

@@ -12,15 +12,15 @@ import qualified Text.Phidoc.Resolve    as R
 import qualified Text.Phidoc.Walk       as W
 
 fs :: FakeFileSystem
-fs = "index.phi"            |= "# Abstract\n\
-                               \./abstract\n\
+fs = "index.phi"            |= "# Meta\n\
+                               \./meta\n\
                                \\n\
                                \# Chapters\n\
                                \./ch 1\n\
                                \./ch 2\n\
                                \./ch 3\n"
 
-  /+ "abstract.md"          |= "This is the abstract\n"
+  /+ "meta.yml"             |= "title: Some Title\n"
 
   /+ "ch 1" </> "index.md"  |= "# Chapter 1\n\
                                \This is chapter 1\n"
@@ -48,13 +48,19 @@ expect expected mactual = assertion
     result    = fakeRun mactual fs
     assertion = either throwM (assertEqual "" expected . fst) result
 
-fsRead :: FilePath -> W.FileContent
+fsRead :: (FilePath -> String -> W.FileContent) -> FilePath -> W.FileContent
 -- fsRead path = either (\_ -> error "file not found in fakefs: " ++ path) (W.FileContent path . fst) $ flip fakeRun fs $ readFile path
-fsRead path = fileContent
+fsRead fn path = fileContent
   where
     fakeIo = flip fakeRun fs $ readFile path
-    content = either (\_ -> error "file not found in fakefs: " ++ path) fst fakeIo
-    fileContent = W.FileContent path content
+    content = either (\_ -> error $ "file not found in fakefs: " ++ path) fst fakeIo
+    fileContent = fn path content
+
+fsReadContent :: FilePath -> W.FileContent
+fsReadContent = fsRead W.Content
+
+fsReadMeta :: FilePath -> W.FileContent
+fsReadMeta = fsRead W.Meta
 
 resolveTests :: Test
 resolveTests = test [
@@ -67,19 +73,19 @@ resolveTests = test [
 
 walkTests :: Test
 walkTests = test [
-    "walk should return a markdown file as is" ~: expect [fsRead $ "ch 1" </> "index.md"] $ W.walk "ch 1"
+    "walk should return a markdown file as is" ~: expect [fsReadContent $ "ch 1" </> "index.md"] $ W.walk "ch 1"
   , "walk should return all markdown files pointed at from a phi file" ~: expect [
-      fsRead $ "ch 3" </> "intro.md"
-    , fsRead $ "ch 3" </> "part1.md"
-    , fsRead $ "ch 3" </> "part2.md"
+      fsReadContent $ "ch 3" </> "intro.md"
+    , fsReadContent $ "ch 3" </> "part1.md"
+    , fsReadContent $ "ch 3" </> "part2.md"
     ] $ W.walk "ch 3"
   , "walk should run recursively" ~: expect [
-      fsRead "abstract.md"
-    , fsRead $ "ch 1" </> "index.md"
-    , fsRead $ "ch 2" </> "index.md"
-    , fsRead $ "ch 3" </> "intro.md"
-    , fsRead $ "ch 3" </> "part1.md"
-    , fsRead $ "ch 3" </> "part2.md"
+      fsReadMeta "meta.yml"
+    , fsReadContent $ "ch 1" </> "index.md"
+    , fsReadContent $ "ch 2" </> "index.md"
+    , fsReadContent $ "ch 3" </> "intro.md"
+    , fsReadContent $ "ch 3" </> "part1.md"
+    , fsReadContent $ "ch 3" </> "part2.md"
     ] $ W.walk ""
   ]
 

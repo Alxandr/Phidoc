@@ -10,7 +10,9 @@ import           System.FilePath
 import           Text.Phidoc.FileSystem
 import           Text.Phidoc.Resolve
 
-data FileContent = FileContent FilePath String deriving (Eq, Show)
+data FileContent = Content FilePath String
+                 | Meta FilePath String
+  deriving (Eq, Show)
 
 data WalkException =
     ExtensionNotSupported String
@@ -25,14 +27,21 @@ validImport ('#':_) = False
 validImport _       = True
 
 process :: MonadFS m => FilePath -> m [FileContent]
-process file | takeExtension file == ".md"  = processMD file
-process file | takeExtension file == ".phi" = processPHI file
+process file | takeExtension file == ".md"   = processMD file
+process file | takeExtension file == ".phi"  = processPHI file
+process file | takeExtension file == ".yml"  = processYml file
+process file | takeExtension file == ".yaml" = processYml file
 process file = throwM $ ExtensionNotSupported $ takeExtension file
+
+processYml :: MonadFS m => FilePath -> m [FileContent]
+processYml path = do
+  content <- readFile path
+  return [Meta path content]
 
 processMD :: MonadFS m => FilePath -> m [FileContent]
 processMD path = do
   content <- readFile path
-  return [FileContent path content]
+  return [Content path content]
 
 processPHI :: MonadFS m => FilePath -> m [FileContent]
 processPHI path = do
